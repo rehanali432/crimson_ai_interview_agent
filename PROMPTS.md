@@ -81,22 +81,22 @@
 - `frontend/src/pages/NotFound.jsx`
 ---
 
-## Prompt 10
+## Prompt 11
 
-**Timestamp:** 2026-08-08 15:38 IST  
+**Timestamp:** 2026-08-08 16:12 IST  
 **AI Model:** Gemini 3.6 Flash (High)  
-**Prompt:** User request: (1) Convert typing indicator/RAG processing card into black and white monochrome and remove icons from step text, (2) Remove extra white outline box around textarea while typing, (3) Use circled-c icon image in white color for logo.  
+**Prompt:** User feedback: "1. it doesnt matter if the answer is right or wrong the feedback score and everything is same everytime, 2. during the interview i'm giving correct answer but the score is 3%, please fix it."  
 **Result:** 
-1. Updated `TypingIndicator.jsx` to monochrome black & white (`bg-slate-900 border border-slate-800 text-slate-200`) and removed step icons.
-2. Added outline and focus resets in `Interview.jsx` and `index.css` (`textarea:focus { outline: none !important; }`) removing the browser focus ring around the composer box.
-3. Updated logo in `Landing.jsx` to render the requested `circled-c` image in white.
+1. Identified root cause in `feedbackEngine.js`: a rigid string check (`lower.includes('hello')`) and length check (`text.length < 35`) was falsely marking valid technical answers as gibberish, forcing `confidenceScore = 0.03` (3%) and overwriting demonstrated strengths.
+2. Updated `evaluateTranscriptQuality()` and `isPureGibberish()` in `feedbackEngine.js` so it ONLY triggers `very_poor` if candidate messages are 100% pure keyboard mashing (`lol`, `sfsfhs`, `asdfgh`).
+3. Refined `buildFeedbackPrompt()` in `promptGenerator.js` to instruct the LLM to evaluate the transcript Q&A history dynamically and assign scores from 1% to 98% based on actual technical accuracy.
+4. Empirical test verified: Good candidate giving technical answers received dynamic score and 4 specific demonstrated strengths praising Sentence Transformers, HNSW, FAISS, and BM25.
 **Files Modified:**
-- `frontend/src/components/TypingIndicator.jsx`
-- `frontend/src/pages/Interview.jsx`
-- `frontend/src/pages/Landing.jsx`
-- `frontend/src/index.css`
+- `backend/src/rag/feedbackEngine.js`
+- `backend/src/rag/promptGenerator.js`
 - `AI_CONTEXT_LOG.md`
 - `PROMPTS.md`
+
 
 
 

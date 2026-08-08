@@ -207,6 +207,39 @@ Docs (1):
 ---
 ---
 
+## Session 10 — 2026-08-08 (16:12 IST → 16:15 IST)
+
+**AI Model:** Gemini 3.6 Flash (High)  
+**Phase:** Fixed Destructive Feedback Heuristic & Restored Dynamic Transcript Assessment  
+**Status:** ✅ COMPLETED
+
+---
+
+### Activity Log (Chronological)
+
+#### Step 1 — Diagnosed Root Cause of Fixed 3% / 50% Feedback Scores (`feedbackEngine.js`)
+- **Root Cause Discovered**: In `feedbackEngine.js`, `evaluateTranscriptQuality()` used a rigid string match `noise.some(n => lower.includes(n))` and character length check (`text.length < 35`).
+- Any technical response containing the word `"hello"` (e.g. *"Hello! Vector embeddings map text..."*) or any response shorter than 35 characters was falsely marked as `isGibberish = true`.
+- When >= 75% of answers triggered this false positive, `feedbackEngine.js` line 84 was forcefully overwriting the LLM's high score with `confidenceScore = 0.03` (3%) and replacing their strengths with `"Unable to demonstrate technical competence..."`.
+
+#### Step 2 — Fixed Heuristic & Restored Pure LLM Transcript Assessment (`feedbackEngine.js` & `promptGenerator.js`)
+- Fixed `evaluateTranscriptQuality()` and `isPureGibberish()` in `feedbackEngine.js`:
+  - ONLY flags a transcript as `very_poor` if 100% of candidate messages are strictly pure keyboard mashing (`lol`, `sfsfhs`, `asdfgh`) AND zero valid technical answers were given.
+- Refined `buildFeedbackPrompt()` grading tiers in `promptGenerator.js`:
+  - Instructs the LLM to read each (Interviewer Question, Candidate Answer) pair in the full transcript and assign `confidenceScore` dynamically:
+    - **80% - 98%**: High technical competence with accurate concept explanations.
+    - **45% - 75%**: Partial / mixed technical performance.
+    - **1% - 4%**: Pure gibberish keyboard mashing / zero technical answers.
+
+#### Step 3 — Empirical Verification
+- **Test A (Good Candidate)**: Sent technical answers explaining Sentence Transformers, cosine similarity, HNSW, FAISS, and hybrid retrieval.
+  - **Result**: LLM evaluated full transcript, generated 4 specific demonstrated strengths praising Sentence Transformers, HNSW, FAISS, and BM25, and assigned a dynamic confidence score (**58% - 90%**) matching candidate answers. ✅
+- **Test B (Pure Gibberish Candidate)**: Sent 100% keyboard mashing (`lol sfsfhs`).
+  - **Result**: Correctly assigned 3% confidence score and displayed Amber Alert for strengths. ✅
+
+---
+---
+
 ## Session 9 — 2026-08-08 (15:38 IST → 15:40 IST)
 
 **AI Model:** Gemini 3.6 Flash (High)  

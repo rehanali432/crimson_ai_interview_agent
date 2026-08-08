@@ -145,16 +145,19 @@ ${conversationHistory.map(m => {
   return `${label}: ${m.content}`;
 }).join('\n\n')}
 
-CRITICAL EVALUATION RULES FOR CONFIDENCE SCORE:
-- Evaluate the candidate's performance STRICTLY based on the transcript above!
-- IF THE CANDIDATE GAVE GIBBERISH (e.g. "lol", "sfsfhs"), NONSENSE, INCORRECT, OR "I DON'T KNOW" ANSWERS TO ALL OR MOST QUESTIONS:
+CRITICAL EVALUATION RULES FOR CONFIDENCE SCORE & STRENGTHS:
+- Read each INTERVIEWER question and CANDIDATE answer in the transcript above carefully.
+- IF THE CANDIDATE GAVE ACCURATE, LOGICAL, AND CORRECT TECHNICAL ANSWERS TO THE QUESTIONS:
+  - The "confidenceScore" MUST be HIGH (between 0.80 and 0.98, which is 80% - 98% confidence).
+  - Under "strengths", list 2-4 SPECIFIC technical strengths demonstrated in their actual answers (e.g., "Demonstrated strong understanding of Sentence Transformers and cosine similarity").
+  - Under "gaps", list any minor areas where their answers could be deeper.
+- IF THE CANDIDATE ANSWERED PARTIALLY CORRECT OR HAD MIXED PERFORMANCE:
+  - The "confidenceScore" MUST be between 0.45 and 0.75 (45% - 75% confidence).
+  - Highlight both demonstrated strengths and identified gaps accurately from the transcript.
+- IF THE CANDIDATE GAVE PURE GIBBERISH (e.g. "lol", "sfsfhs"), NONSENSE, OR NO VALID TECHNICAL ANSWERS TO ANY QUESTION:
   - The "confidenceScore" MUST be LESS THAN 0.05 (between 0.01 and 0.04, which is 1% - 4% confidence).
   - Under "strengths", write: ["Unable to demonstrate technical competence during the interview session"].
-  - Under "gaps", list all tested technical topics as major gaps.
-- IF THE CANDIDATE ANSWERED HALF CORRECTLY AND HALF WRONG:
-  - The "confidenceScore" MUST be between 0.30 and 0.50 (30% - 50%).
-- IF THE CANDIDATE GAVE ACCURATE, DEEP, AND COMPLETE TECHNICAL ANSWERS TO ALL QUESTIONS:
-  - The "confidenceScore" MUST be between 0.85 and 0.98 (85% - 98%).
+  - Under "gaps", list the tested topics as major gaps.
 
 Respond in this exact JSON format:
 {
@@ -162,7 +165,7 @@ Respond in this exact JSON format:
   "strengths": ["Specific strength 1 based on actual transcript answers", "..."],
   "gaps": ["Specific technical gap 1 based on actual transcript answers", "..."],
   "next": ["Specific recommendation 1", "..."],
-  "confidenceScore": <number between 0.01 and 0.99 based strictly on transcript rules above>,
+  "confidenceScore": <number between 0.01 and 0.98 based strictly on transcript rules above>,
   "daysToRevisit": [array of curriculum day numbers they failed or struggled on]
 }
 

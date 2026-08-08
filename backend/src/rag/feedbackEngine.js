@@ -111,7 +111,8 @@ export async function generateInterviewFeedback(sessionId, session, context) {
 }
 
 /**
- * Audit candidate messages in transcript for gibberish/nonsense/short responses.
+ * Audit candidate messages in transcript for pure gibberish/nonsense.
+ * ONLY flags as 'very_poor' if candidate provided strictly 100% keyboard mashing / empty answers.
  */
 function evaluateTranscriptQuality(fullHistory) {
   if (!fullHistory || fullHistory.length === 0) return { quality: 'unknown' };
@@ -119,30 +120,44 @@ function evaluateTranscriptQuality(fullHistory) {
   const candidateMsgs = fullHistory.filter(m => m.role === 'user' || m.role === 'candidate');
   if (candidateMsgs.length === 0) return { quality: 'empty', maxScore: 0.03 };
 
-  let badCount = 0;
+  let pureGibberishCount = 0;
+  let validAnswerCount = 0;
+
   for (const msg of candidateMsgs) {
-    const text = (msg.content || '').trim().toLowerCase();
-    if (text.length < 35 || isGibberish(text)) {
-      badCount++;
+    const text = (msg.content || '').trim();
+    if (isPureGibberish(text)) {
+      pureGibberishCount++;
+    } else if (text.length > 5) {
+      validAnswerCount++;
     }
   }
 
-  const badRatio = badCount / candidateMsgs.length;
-  if (badRatio >= 0.75) {
+  // ONLY trigger very_poor if 100% of candidate messages are pure gibberish keyboard mash AND zero valid answers were given
+  if (pureGibberishCount === candidateMsgs.length && validAnswerCount === 0) {
     return { quality: 'very_poor', maxScore: 0.04 };
-  } else if (badRatio >= 0.4) {
-    return { quality: 'poor', maxScore: 0.35 };
   }
 
   return { quality: 'normal', maxScore: 0.98 };
 }
 
-function isGibberish(text) {
-  const lower = text.toLowerCase();
-  const noise = ['lol', 'sfsfhs', 'asdf', 'qwerty', 'hello', 'hi', 'xxx', 'yyy', 'zzz', 'idk', 'dunno', 'whatever'];
-  if (noise.some(n => lower === n || lower.includes(n))) return true;
-  // Single word without technical keywords
-  if (!text.includes(' ') && text.length > 4 && !['embeddings', 'vectors', 'python', 'langchain', 'pinecone', 'chroma'].includes(lower)) return true;
+/**
+ * Checks if a string is strictly pure keyboard mash/nonsense (e.g. 'lol', 'asdfgh', 'sfsfhs').
+ * Does NOT match real sentences, greetings, or technical answers.
+ */
+function isPureGibberish(text) {
+  if (!text) return true;
+  const lower = text.trim().toLowerCase();
+  
+  // Exact matches for common gibberish noise
+  const exactGibberish = ['lol', 'sfsfhs', 'asdf', 'asdfgh', 'qwerty', 'fgaf', 'xxx', 'yyy', 'zzz', 'idk', 'whatever'];
+  if (exactGibberish.includes(lower)) return true;
+
+  // Single word keyboard mash with no spaces, no vowels, or repeating single char
+  if (lower.length > 3 && !lower.includes(' ')) {
+    const hasVowels = /[aeiouy]/.test(lower);
+    if (!hasVowels) return true; // e.g. "sfsfhs", "fgaf", "brbbb"
+  }
+
   return false;
 }
 
