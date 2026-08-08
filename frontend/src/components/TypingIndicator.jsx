@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Database, Brain, Sparkles, Cpu } from 'lucide-react';
+import { Bot } from 'lucide-react';
 
 const PIPELINE_STEPS = [
-  { icon: <Database size={13} className="text-indigo-400" />, text: "Searching vector database (pgvector cosine similarity)..." },
-  { icon: <Brain size={13} className="text-purple-400" />, text: "Analyzing candidate's mission history & skill gaps..." },
-  { icon: <Cpu size={13} className="text-cyan-400" />, text: "Selecting optimal curriculum topic & difficulty..." },
-  { icon: <Sparkles size={13} className="text-emerald-400" />, text: "Synthesizing adaptive technical question..." },
+  "Searching vector database (pgvector cosine similarity)...",
+  "Analyzing candidate's mission history & skill gaps...",
+  "Selecting optimal curriculum topic & difficulty...",
+  "Synthesizing adaptive technical question..."
 ];
 
 /**
- * Animated Typing & Pipeline Indicator.
- * Shows cycling progress steps while waiting for RAG + LLM response.
+ * Animated Typing & Pipeline Indicator — Monochrome Black & White Theme.
  */
 export default function TypingIndicator() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -32,20 +31,20 @@ export default function TypingIndicator() {
       exit={{ opacity: 0, y: -5 }}
       className="flex items-start gap-3.5 my-3 w-full"
     >
-      {/* Bot Avatar */}
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-900/80 to-slate-900 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 shadow-md shadow-indigo-950/40">
-        <Bot size={18} className="text-indigo-400 animate-pulse" />
+      {/* Bot Avatar - Monochrome */}
+      <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center flex-shrink-0 shadow-md">
+        <Bot size={18} className="text-slate-200 animate-pulse" />
       </div>
 
-      {/* Indicator Card */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl rounded-tl-xs px-5 py-3.5 shadow-lg backdrop-blur-md max-w-md">
-        {/* Pulsing Dots */}
+      {/* Indicator Card - Black & White */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-xs px-5 py-3.5 shadow-lg backdrop-blur-md max-w-md">
+        {/* Pulsing Dots - White */}
         <div className="flex items-center gap-2 mb-2">
           <div className="flex items-center gap-1.5">
             {[0, 1, 2].map((i) => (
               <motion.div
                 key={i}
-                className="w-2 h-2 rounded-full bg-indigo-400"
+                className="w-2 h-2 rounded-full bg-slate-200"
                 animate={{
                   scale: [0.7, 1.2, 0.7],
                   opacity: [0.4, 1, 0.4],
@@ -59,10 +58,10 @@ export default function TypingIndicator() {
               />
             ))}
           </div>
-          <span className="text-xs font-medium text-slate-300">RAG Engine Working</span>
+          <span className="text-xs font-semibold text-slate-200">AI Engine Processing</span>
         </div>
 
-        {/* Step Progress Animation */}
+        {/* Step Progress Animation (No Icons, Plain Text) */}
         <div className="h-5 relative overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
@@ -71,10 +70,9 @@ export default function TypingIndicator() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
-              className="flex items-center gap-2 text-xs text-slate-400 font-mono"
+              className="text-xs text-slate-400 font-mono"
             >
-              {currentStep.icon}
-              <span className="truncate">{currentStep.text}</span>
+              <span className="truncate">{currentStep}</span>
             </motion.div>
           </AnimatePresence>
         </div>

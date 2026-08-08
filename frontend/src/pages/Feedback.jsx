@@ -1,202 +1,207 @@
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, AlertCircle, ArrowRight, Home, Brain, Target, TrendingUp, Sparkles, Award } from 'lucide-react';
+import { CheckCircle2, AlertCircle, ArrowRight, Home, Brain, Target, TrendingUp, Award } from 'lucide-react';
 
 export default function Feedback() {
   const { state } = useLocation();
   const navigate = useNavigate();
-
   const feedback = state?.feedback;
 
   if (!feedback) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mb-6">
-          <AlertCircle size={32} />
+      <main className="min-h-screen bg-black px-5 py-8 text-white sm:px-8 sm:py-12">
+        <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg flex-col items-center justify-center text-center sm:min-h-[calc(100vh-6rem)]">
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-700 bg-zinc-950 text-white">
+            <AlertCircle size={26} aria-hidden="true" />
+          </div>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">Interview report</p>
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-white sm:text-4xl">No feedback session found</h1>
+          <p className="mt-4 max-w-md text-sm leading-7 text-zinc-400">
+            Could not locate active feedback data. Please start a new interview session.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="mt-8 inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
+            Return home
+          </button>
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">No Feedback Session Found</h1>
-        <p className="text-slate-400 text-sm mb-6 max-w-md">Could not locate active feedback data. Please start a new interview session.</p>
-        <button onClick={() => navigate('/')} className="px-6 py-3 bg-white text-slate-950 font-bold rounded-2xl cursor-pointer">
-          Return to Dashboard
-        </button>
-      </div>
+      </main>
     );
   }
 
-  const confidencePercentage = Math.round((feedback.confidenceScore || 0.5) * 100);
-
-  let scoreColor = 'text-emerald-400';
-  let scoreBg = 'bg-emerald-500/10 border-emerald-500/30';
-  if (confidencePercentage < 50) {
-    scoreColor = 'text-rose-400';
-    scoreBg = 'bg-rose-500/10 border-rose-500/30';
-  } else if (confidencePercentage < 75) {
-    scoreColor = 'text-amber-400';
-    scoreBg = 'bg-amber-500/10 border-amber-500/30';
-  }
+  const confidencePercentage = Math.round((feedback.confidenceScore ?? 0.5) * 100);
+  const confidenceLabel = confidencePercentage >= 75
+    ? 'Strong response quality'
+    : confidencePercentage >= 50
+      ? 'Developing response quality'
+      : 'Focused practice recommended';
+  const strengthsList = feedback.strengths || [];
+  const isInvalid = strengthsList.length === 0 || strengthsList.some((strength) => (
+    strength.toLowerCase().includes('unable')
+    || strength.toLowerCase().includes('zero')
+    || strength.toLowerCase().includes('no valid')
+  ));
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-6 relative overflow-hidden font-sans">
-      {/* Background Orbs */}
-      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-transparent rounded-full blur-[140px] pointer-events-none" />
-
-      <div className="max-w-4xl mx-auto relative z-10">
-
-        {/* Top Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+    <main className="min-h-screen bg-black px-5 py-8 text-white sm:px-8 sm:py-12 lg:py-16">
+      <div className="mx-auto max-w-6xl">
+        <motion.header
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12 border-b border-slate-800/80 pb-8"
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-1 items-start gap-8 border-b border-zinc-800 pb-8 sm:pb-10 lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12"
         >
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-3">
-              <Award size={14} className="text-indigo-400" />
-              Interview Evaluation Completed
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-950 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-300">
+              <Award size={14} aria-hidden="true" />
+              Interview complete
             </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Assessment Report
+            <h1 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+              Assessment report
             </h1>
-            <p className="text-sm text-slate-400 max-w-xl mt-2 leading-relaxed">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
               {feedback.summary}
             </p>
           </div>
 
-          {/* Confidence Score Badge */}
-          <div className={`flex flex-col items-center justify-center min-w-[150px] p-6 rounded-3xl border backdrop-blur-md shadow-xl ${scoreBg}`}>
-            <span className="text-[11px] text-slate-300 uppercase tracking-widest font-semibold mb-1">Confidence</span>
-            <span className={`text-5xl font-extrabold font-mono ${scoreColor}`}>
-              {confidencePercentage}%
-            </span>
+          <div className="w-full rounded-2xl border border-zinc-700 bg-zinc-950 p-5 sm:p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Confidence score</p>
+            <p className="mt-3 font-heading text-5xl font-semibold tracking-[-0.06em] text-white">
+              {confidencePercentage}<span className="ml-1 text-2xl text-zinc-500">%</span>
+            </p>
+            <div className="mt-5 h-px w-full bg-zinc-800" />
+            <p className="mt-4 text-sm leading-6 text-zinc-400">{confidenceLabel}</p>
           </div>
-        </motion.div>
+        </motion.header>
 
-        {/* Grid: Strengths & Growth Areas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-
-          {/* Strengths */}
-          {(() => {
-            const strengthsList = feedback.strengths || [];
-            const isInvalid = strengthsList.length === 0 || strengthsList.some(s => s.toLowerCase().includes('unable') || s.toLowerCase().includes('zero') || s.toLowerCase().includes('no valid'));
-
-            return (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-md"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center ${
-                    isInvalid ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                  }`}>
-                    {isInvalid ? <AlertCircle size={20} /> : <Target size={20} />}
-                  </div>
-                  <h2 className="text-lg font-bold text-white">Demonstrated Strengths</h2>
-                </div>
-
-                {isInvalid ? (
-                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs leading-relaxed flex items-start gap-2.5">
-                    <AlertCircle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
-                    <span>No valid technical answers were provided during this interview session. Zero technical strengths demonstrated.</span>
-                  </div>
-                ) : (
-                  <ul className="space-y-3.5">
-                    {strengthsList.map((strength, i) => (
-                      <li key={i} className="flex items-start gap-3 text-xs text-slate-300 leading-relaxed">
-                        <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <span>{strength}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </motion.div>
-            );
-          })()}
-
-          {/* Growth Areas */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+        <section className="mt-8 grid grid-cols-1 gap-5 lg:mt-10 lg:grid-cols-2 lg:gap-6" aria-label="Assessment details">
+          <motion.article
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-md"
+            transition={{ delay: 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:p-8"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
-                <AlertCircle size={20} />
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-700 bg-black text-white">
+                {isInvalid ? <AlertCircle size={19} aria-hidden="true" /> : <Target size={19} aria-hidden="true" />}
               </div>
-              <h2 className="text-lg font-bold text-white">Knowledge Gaps</h2>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">What went well</p>
+                <h2 className="mt-1 font-heading text-xl font-semibold tracking-tight text-white">Demonstrated strengths</h2>
+              </div>
             </div>
-            <ul className="space-y-3.5">
-              {(feedback.gaps || []).map((gap, i) => (
-                <li key={i} className="flex items-start gap-3 text-xs text-slate-300 leading-relaxed">
-                  <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0 mt-1.5" />
-                  <span>{gap}</span>
-                </li>
-              ))}
-              {(feedback.gaps || []).length === 0 && (
-                <li className="text-xs text-slate-500 italic">No significant knowledge gaps detected.</li>
-              )}
-            </ul>
-          </motion.div>
-        </div>
 
-        {/* Recommended Action Plan */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+            {isInvalid ? (
+              <div className="mt-7 rounded-xl border border-zinc-700 bg-black p-4 text-sm leading-6 text-zinc-300">
+                No valid technical answers were provided during this interview session. No technical strengths could be identified.
+              </div>
+            ) : (
+              <ul className="mt-7 space-y-5">
+                {strengthsList.map((strength, index) => (
+                  <li key={index} className="flex items-start gap-3 text-sm leading-6 text-zinc-300 sm:text-[15px]">
+                    <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-white" aria-hidden="true" />
+                    <span>{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </motion.article>
+
+          <motion.article
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:p-8"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-700 bg-black text-white">
+                <AlertCircle size={19} aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Where to focus</p>
+                <h2 className="mt-1 font-heading text-xl font-semibold tracking-tight text-white">Knowledge gaps</h2>
+              </div>
+            </div>
+
+            {(feedback.gaps || []).length > 0 ? (
+              <ul className="mt-7 space-y-5">
+                {feedback.gaps.map((gap, index) => (
+                  <li key={index} className="flex items-start gap-3 text-sm leading-6 text-zinc-300 sm:text-[15px]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white" aria-hidden="true" />
+                    <span>{gap}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-7 text-sm leading-6 text-zinc-400">No significant knowledge gaps were detected.</p>
+            )}
+          </motion.article>
+        </section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="p-8 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-md mb-10"
+          transition={{ delay: 0.24, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:mt-6 sm:p-8"
+          aria-labelledby="action-plan-title"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
-              <TrendingUp size={20} />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-zinc-700 bg-black text-white">
+              <TrendingUp size={19} aria-hidden="true" />
             </div>
-            <h2 className="text-lg font-bold text-white">Recommended Action Plan</h2>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Next steps</p>
+              <h2 id="action-plan-title" className="mt-1 font-heading text-xl font-semibold tracking-tight text-white">Recommended action plan</h2>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(feedback.next || []).map((step, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 flex items-start gap-3">
-                <ArrowRight size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
-                <span className="text-xs text-slate-200 leading-relaxed">{step}</span>
-              </div>
-            ))}
-          </div>
+          {(feedback.next || []).length > 0 ? (
+            <div className="mt-7 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
+              {feedback.next.map((step, index) => (
+                <div key={index} className="flex min-h-24 items-start gap-3 rounded-xl border border-zinc-800 bg-black p-4 sm:p-5">
+                  <ArrowRight size={17} className="mt-0.5 shrink-0 text-white" aria-hidden="true" />
+                  <span className="text-sm leading-6 text-zinc-300">{step}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-7 text-sm leading-6 text-zinc-400">No additional follow-up steps were generated for this interview.</p>
+          )}
 
           {feedback.daysToRevisit && feedback.daysToRevisit.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-slate-800">
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Brain size={14} className="text-purple-400" />
-                Curriculum Days Recommended for Revision
-              </h3>
-              <div className="flex flex-wrap gap-2">
+            <div className="mt-8 border-t border-zinc-800 pt-6">
+              <div className="flex items-center gap-2">
+                <Brain size={16} className="text-white" aria-hidden="true" />
+                <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">Recommended revision days</h3>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2.5">
                 {feedback.daysToRevisit.map((day) => (
-                  <span key={day} className="px-3 py-1.5 text-xs font-mono rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300">
-                    Day {day} Revision
+                  <span key={day} className="rounded-lg border border-zinc-700 bg-black px-3 py-2 text-xs font-medium text-zinc-300">
+                    Day {day}
                   </span>
                 ))}
               </div>
             </div>
           )}
-        </motion.div>
+        </motion.section>
 
-        {/* Footer Actions */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex justify-center"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.32, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="flex justify-center pt-8 sm:pt-10"
         >
           <Link
             to="/"
-            className="px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-xl cursor-pointer transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           >
-            <Home size={18} />
-            Return to Dashboard
+            <Home size={17} aria-hidden="true" />
+            Start another interview
           </Link>
         </motion.div>
-
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,63 +1,57 @@
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { Bot, User, Sparkles } from 'lucide-react';
+import { Bot, User } from 'lucide-react';
 
 /**
  * Chat message bubble — renders interviewer or candidate messages
  * with distinct, modern typography and clean theme styling.
  */
-export default function MessageBubble({ role, content, index, strategy }) {
+export default function MessageBubble({ role, content, index }) {
   const isInterviewer = role === 'interviewer' || role === 'assistant';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.2), ease: [0.16, 1, 0.3, 1] }}
-      className={`flex items-start gap-3.5 my-2.5 ${isInterviewer ? 'justify-start' : 'justify-end'} w-full`}
+      transition={{ duration: 0.3, delay: Math.min(index * 0.04, 0.16), ease: [0.16, 1, 0.3, 1] }}
+      className={`flex w-full items-start gap-2.5 sm:gap-3 ${isInterviewer ? 'justify-start' : 'justify-end'}`}
     >
       {/* AI Avatar */}
       {isInterviewer && (
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-900/80 to-slate-900 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 shadow-md shadow-indigo-950/40">
-          <Bot size={18} className="text-indigo-400" />
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/15 bg-zinc-950 text-white">
+          <Bot size={17} aria-hidden="true" />
         </div>
       )}
 
       {/* Message Content Container */}
-      <div className={`flex flex-col ${isInterviewer ? 'items-start' : 'items-end'} max-w-[82%] sm:max-w-[75%]`}>
+      <div className={`flex min-w-0 max-w-[calc(100%-3rem)] flex-col ${isInterviewer ? 'items-start' : 'items-end'} sm:max-w-[76%]`}>
         {/* Role Label */}
-        <div className="flex items-center gap-2 mb-1 px-1">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+        <div className="mb-1.5 px-1">
+          <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-zinc-500">
             {isInterviewer ? 'AI Interviewer' : 'You'}
           </span>
-          {isInterviewer && strategy && (
-            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
-              <Sparkles size={10} />
-              {strategy.replace('_', ' ')}
-            </span>
-          )}
         </div>
 
         {/* Bubble */}
         <div
-          className={`px-5 py-4 rounded-2xl text-sm leading-relaxed backdrop-blur-md transition-all shadow-lg ${
+          className={`w-full break-words rounded-2xl px-4 py-3.5 text-sm leading-6 shadow-sm sm:px-5 sm:py-4 ${
             isInterviewer
-              ? 'bg-slate-900/90 border border-slate-800 text-slate-100 rounded-tl-xs shadow-black/30'
-              : 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-tr-xs shadow-indigo-950/40 border border-indigo-500/30'
+              ? 'rounded-tl-sm border border-white/15 bg-zinc-950 text-zinc-100'
+              : 'rounded-tr-sm bg-white text-black'
           }`}
         >
-          <div className={`prose prose-invert prose-sm max-w-none ${isInterviewer ? 'text-slate-200' : 'text-white'}`}>
+          <div className="max-w-none">
             <ReactMarkdown
               components={{
                 p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-                strong: ({ children }) => <strong className="font-semibold text-indigo-300">{children}</strong>,
+                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                 code: ({ children }) => (
-                  <code className={`px-1.5 py-0.5 rounded text-xs font-mono ${isInterviewer ? 'bg-slate-800 text-indigo-300 border border-slate-700' : 'bg-indigo-800/60 text-indigo-100'}`}>
+                  <code className={`rounded px-1.5 py-0.5 font-mono text-xs ${isInterviewer ? 'border border-white/10 bg-white/[0.06] text-zinc-100' : 'bg-black/10 text-black'}`}>
                     {children}
                   </code>
                 ),
-                ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-2">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-2">{children}</ol>,
+                ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-4">{children}</ul>,
+                ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-4">{children}</ol>,
               }}
             >
               {content}
@@ -68,8 +62,8 @@ export default function MessageBubble({ role, content, index, strategy }) {
 
       {/* User Avatar */}
       {!isInterviewer && (
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-indigo-950/50">
-          <User size={18} className="text-white" />
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-black">
+          <User size={17} aria-hidden="true" />
         </div>
       )}
     </motion.div>

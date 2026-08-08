@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Send, AlertCircle, ArrowLeft, Bot, Sparkles, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Send, AlertCircle, ArrowLeft } from 'lucide-react';
 import { startInterview, sendMessage, getCandidate } from '../services/api';
 import MessageBubble from '../components/MessageBubble';
 import TypingIndicator from '../components/TypingIndicator';
@@ -39,6 +39,19 @@ export default function Interview() {
       textareaRef.current.focus();
     }
   }, [isThinking]);
+
+  // Keep short replies compact while allowing comfortable multi-line answers.
+  // Resetting the height here also collapses the field after a message sends.
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const maxHeight = 160;
+    textarea.style.height = 'auto';
+    const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${Math.max(nextHeight, 52)}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, [inputValue]);
 
   // Start interview session on mount
   useEffect(() => {
@@ -118,6 +131,8 @@ export default function Interview() {
   };
 
   const handleKeyDown = (e) => {
+    if (e.nativeEvent.isComposing) return;
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -127,39 +142,39 @@ export default function Interview() {
   if (!sessionId) return null;
 
   return (
-    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative overflow-hidden">
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-30 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 px-6 py-3.5 flex items-center justify-between shadow-lg">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/')}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
-            title="Return to Home"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-white">Live Interview Room</span>
+    <div className="h-[100dvh] min-h-[100dvh] overflow-hidden bg-black text-white flex flex-col">
+      <header className="shrink-0 border-b border-white/10 bg-black">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <button
+              onClick={() => navigate('/')}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/15 bg-zinc-950 text-zinc-300 transition-colors hover:border-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+              title="Return to Home"
+              aria-label="Return to home"
+            >
+              <ArrowLeft size={18} aria-hidden="true" />
+            </button>
+            <div className="min-w-0">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="truncate text-sm font-semibold tracking-tight text-white sm:text-base">Interview session</span>
               {candidateInfo?.member?.name && (
-                <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-semibold">
+                  <span className="hidden max-w-36 truncate rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium text-zinc-300 sm:inline-flex">
                   {candidateInfo.member.name}
                 </span>
               )}
             </div>
-            <p className="text-[11px] font-mono text-slate-500">Session ID: {sessionId.substring(0, 16)}...</p>
+              <p className="mt-0.5 hidden truncate font-mono text-[10px] text-zinc-500 sm:block">Session {sessionId.substring(0, 16)}...</p>
+            </div>
           </div>
-        </div>
 
-        {/* Progress Bar Container */}
-        <div className="w-48 sm:w-64">
-          <ProgressBar questionsAsked={questionsAsked} minQuestions={8} maxQuestions={12} />
+          <div className="w-24 shrink-0 sm:w-56">
+            <ProgressBar questionsAsked={questionsAsked} minQuestions={8} maxQuestions={12} />
+          </div>
         </div>
       </header>
 
-      {/* Messages Conversation Area */}
-      <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 scroll-smooth z-10">
-        <div className="max-w-4xl mx-auto space-y-4 pb-4">
+      <main className="min-h-0 flex-1 overflow-y-auto scroll-smooth" aria-label="Interview conversation">
+        <div className="mx-auto max-w-3xl space-y-5 px-4 py-6 sm:px-6 sm:py-8" role="log" aria-live="polite" aria-relevant="additions">
           {messages.map((msg, idx) => (
             <MessageBubble
               key={idx}
@@ -176,9 +191,10 @@ export default function Interview() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-3 max-w-lg mx-auto my-4"
+              className="mx-auto my-4 flex max-w-xl items-start gap-3 rounded-2xl border border-white/20 bg-zinc-950 p-4 text-xs leading-relaxed text-zinc-300"
+              role="alert"
             >
-              <AlertCircle size={18} className="text-rose-400 flex-shrink-0" />
+              <AlertCircle size={18} className="mt-0.5 shrink-0 text-white" aria-hidden="true" />
               <span>{error}</span>
             </motion.div>
           )}
@@ -187,11 +203,10 @@ export default function Interview() {
         </div>
       </main>
 
-      {/* Fixed Bottom Input Area */}
-      <footer className="sticky bottom-0 z-30 backdrop-blur-xl bg-slate-950/90 border-t border-slate-800/80 px-4 sm:px-6 py-4">
-        <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSend} className="flex items-center gap-3">
-            <div className="relative flex-1">
+      <footer className="shrink-0 border-t border-white/10 bg-black px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pt-4">
+        <div className="mx-auto max-w-3xl">
+          <form onSubmit={handleSend} className="flex items-end gap-2 rounded-2xl border border-white/15 bg-zinc-950 p-2 shadow-[0_12px_36px_rgba(0,0,0,0.28)] transition-colors focus-within:border-white/35">
+            <div className="min-w-0 flex-1">
               <textarea
                 ref={textareaRef}
                 value={inputValue}
@@ -199,15 +214,19 @@ export default function Interview() {
                 onKeyDown={handleKeyDown}
                 placeholder={
                   isThinking
-                    ? "RAG pipeline processing next technical question..."
-                    : "Type your technical response... (Press Enter to submit)"
+                    ? 'Preparing your next question...'
+                    : 'Write your response...'
                 }
                 disabled={isThinking}
                 rows={1}
-                className="w-full bg-slate-900/90 border border-slate-700/80 focus:border-indigo-500 rounded-2xl px-5 py-3.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none resize-none disabled:opacity-50 transition-all shadow-inner leading-relaxed"
+                aria-label="Your interview response"
+                aria-describedby="composer-hint"
+                className="block min-h-[52px] max-h-40 w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-white border-none outline-none focus:outline-none focus:ring-0 focus:border-transparent placeholder:text-zinc-500 disabled:cursor-not-allowed disabled:text-zinc-500 shadow-none appearance-none"
                 style={{
                   minHeight: '52px',
                   maxHeight: '160px',
+                  outline: 'none',
+                  boxShadow: 'none',
                 }}
               />
             </div>
@@ -215,14 +234,20 @@ export default function Interview() {
             <button
               type="submit"
               disabled={!inputValue.trim() || isThinking}
-              className="w-13 h-13 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-indigo-950/50 flex-shrink-0 transition-all"
+              aria-label="Send response"
+              title="Send response"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-black transition-transform hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:hover:scale-100 cursor-pointer"
             >
-              <Send size={18} />
+              <Send size={18} aria-hidden="true" />
             </button>
           </form>
 
-          <div className="flex items-center justify-between text-[10px] text-slate-500 mt-2 px-1">
-            <span>Crimson AI adaptively evaluates knowledge depth using curriculum RAG</span>
+          <div id="composer-hint" className="mt-2 flex items-center justify-end px-1 text-[10px] text-zinc-500">
+            <span>Enter to send. Shift + Enter for a new line.</span>
+          </div>
+
+          <div className="hidden" aria-hidden="true">
+            <span />
             <span className="hidden sm:inline">Press Enter to send · Shift+Enter for new line</span>
           </div>
         </div>
