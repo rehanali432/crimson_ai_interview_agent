@@ -360,7 +360,7 @@ export default function Landing() {
                     animate={{ opacity: 1 }}
                     className="flex min-h-80 items-center justify-center rounded-3xl border border-dashed border-white/15 bg-black p-8 text-center"
                   >
-                    <p className="max-w-xs text-sm leading-6 text-white/50">A selected candidate profile will appear here.</p>
+                    <p className="max-w-xs text-sm leading-6 text-white/50">A selected applicant profile will appear here.</p>
                   </motion.div>
                 )}
               </AnimatePresence>
