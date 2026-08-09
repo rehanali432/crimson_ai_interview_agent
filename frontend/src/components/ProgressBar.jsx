@@ -1,24 +1,20 @@
 import { motion } from 'framer-motion';
 
-/**
- * Interview progress bar — shows how many questions have been asked
- * out of the expected range (8-12).
- */
 export default function ProgressBar({ questionsAsked, minQuestions = 8, maxQuestions = 12 }) {
   const progress = Math.min((questionsAsked / maxQuestions) * 100, 100);
   const isNearEnd = questionsAsked >= minQuestions;
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs text-text-muted font-medium">Interview Progress</span>
-        <span className="text-xs text-text-secondary">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-500">Progress</span>
+        <span className="text-[11px] text-zinc-400">
           {questionsAsked} / {maxQuestions} questions
         </span>
       </div>
-      <div className="w-full h-1.5 bg-bg-elevated rounded-full overflow-hidden">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
         <motion.div
-          className={`h-full rounded-full ${isNearEnd ? 'bg-success' : 'bg-white/30'}`}
+          className={`h-full rounded-full ${isNearEnd ? 'bg-white' : 'bg-white/60'}`}
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -28,7 +24,7 @@ export default function ProgressBar({ questionsAsked, minQuestions = 8, maxQuest
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-xs text-success mt-1.5"
+          className="mt-1.5 text-[10px] text-zinc-400"
         >
           Interview can wrap up soon
         </motion.p>

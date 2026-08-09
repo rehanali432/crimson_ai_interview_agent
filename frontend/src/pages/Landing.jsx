@@ -70,7 +70,7 @@ export default function Landing() {
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 sm:h-20">
           <a href="#top" className="group flex min-w-0 items-center gap-3" aria-label="Crimson AI home">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black text-white transition-transform duration-300 group-hover:-rotate-6">
-              <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/circled-c.png" alt="circled-c" className="invert filter brightness-200" />
+              <Brain size={21} strokeWidth={2.25} aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-base font-semibold tracking-tight sm:text-lg">Crimson AI</span>
